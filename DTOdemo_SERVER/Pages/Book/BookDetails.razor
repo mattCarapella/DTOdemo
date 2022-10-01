@@ -1,0 +1,103 @@
+﻿@page "/books/{bookId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@inject IBookRepository _bookRepository
+
+<div class="container p-2">
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Book is not null)
+        {
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="book-title">
+                            <h2 class="fw-bold">@Book.Title</h2>
+                        </div>
+                    </div>
+                    <div class="col-2 offset-2">
+                        <a href="@($"/books/edit/{Book.Id}")" class="btn btn-warning form-control">Edit book</a>
+                    </div>
+                </div>
+                <div class="book-authors pt-2">
+                    by
+                    @foreach (var auth in @Book.Authors)
+                    {
+                        <span class="mx-1"><NavLink href="@($"/authors/{auth.Id}")">@auth.Name</NavLink></span>
+                    }
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-9 p-3 book-description my-3">
+                        <p>@((MarkupString)Book.Description)</p>
+                    </div>
+                    <div class="col-3 p-5">
+                        <div class="row" style="height: 50%;">
+                            @if (@Book.ImageUrl is null || @Book.ImageUrl == "")
+                            {
+                                <img class="card-img-top img-fluid d-block mx-auto mb-3" src="/images/default-book.jpg" alt="menuitem image" style="max-height: 300px;" object-fit="contain">
+                            }
+                            else
+                            {
+                                <img class="card-img-top img-fluid d-block mx-auto mb-3" src="@Book.ImageUrl" alt="menuitem image" style="max-height: 300px;" object-fit="contain">
+
+                            }
+                        </div>
+                        <div class="row " style="height: 50%;">
+                            <div class="card book-details p-2 my-3">
+                                <div class="card-body">
+                                    <div class="card-title">
+                                        <h5 class="fw-bold">Product details</h5>
+                                        <hr />
+                                    </div>
+                                    <div class="card-text">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><span class="fw-bold">Pages: </span>@Book.Pages </li>
+                                            <li class="list-group-item"><span class="fw-bold">Publisher: </span>@Book.Publisher </li>
+                                            <li class="list-group-item"><span class="fw-bold">Edition: </span>@Book.Edition </li>
+                                            <li class="list-group-item"><span class="fw-bold">Year Published:@Book.YearPublished</span> </li>
+                                            <li class="list-group-item"><span class="fw-bold">ISBN-13: </span>@Book.Isbn13 </li>
+                                            <li class="list-group-item"><span class="fw-bold">ISBN-10: </span>@Book.Isbn10 </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    }
+    <NavLink href="books" class="btn btn-secondary">Back to Books</NavLink>
+</div>
+
+@code {
+    [Parameter] public int BookId { get; set; }
+    private BookDTO Book { get; set; } = new BookDTO();
+    public bool IsLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadBook();
+    }
+
+    private async Task LoadBook()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Book = await _bookRepository.Get(BookId);
+        IsLoading = false;
+        StateHasChanged();
+    }
+}

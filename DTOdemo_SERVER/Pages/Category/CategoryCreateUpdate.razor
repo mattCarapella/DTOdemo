@@ -1,0 +1,94 @@
+﻿@page "/categories/create"
+@page "/categories/edit/{categoryId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@using DTOdemo_SERVER.Helpers
+@inject ICategoryRepository _categoryRepository
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
+
+<div class="row my-2">
+    <h3 class="card-title mb-3 ml-3">@PageType category</h3>
+    <div class="col-10">
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <h4>Loading...</h4>
+                <img src="/images/loading.gif" />
+            </div>
+        }
+        else
+        {
+            <EditForm Model="Category" OnValidSubmit="AddCategory">
+                <DataAnnotationsValidator />
+                <div class="form-group my-3">
+                    <label class="fw-bold">Title</label>
+                    <InputText @bind-Value="Category.Name" class="form-control" />
+                    <ValidationMessage For="() => Category.Name" />
+                </div>
+                <div class="form-group py-2">
+                    <button class="btn btn-primary">Submit</button>
+                    <NavLink href="categories" class="btn btn-secondary">Back to Categories</NavLink>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CategoryId { get; set; }
+    private CategoryDTO Category { get; set; } = new();
+    private string PageType { get; set; } = "Add";
+    public bool IsLoading { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (CategoryId == 0)
+            {
+                // No CategoryId passed in URL so create a new category
+                IsLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                // CategoryId passed in URL so edit category with that Id
+                IsLoading = true;
+                await LoadCategory();
+            }
+        }
+    }
+
+    private async Task LoadCategory()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        
+        if (CategoryId != 0)
+        {
+            PageType = "Edit";
+            Category = await _categoryRepository.Get(CategoryId);
+        }
+        
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task AddCategory()
+    {
+        if (Category.Id == 0)
+        {
+            // Create
+            await _categoryRepository.Create(Category);
+            await _jsRuntime.ToastrSuccess("Category added.");
+        }
+        else
+        {
+            // Update
+            await _categoryRepository.Update(Category);
+            await _jsRuntime.ToastrSuccess("Category successfully updated.");
+        }
+        _navigationManager.NavigateTo("categories");
+    }
+}

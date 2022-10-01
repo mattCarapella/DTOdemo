@@ -1,0 +1,182 @@
+﻿@page "/books/create"
+@page "/books/edit/{bookId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@using DTOdemo_SERVER.Helpers
+@using DTOdemo_SERVER.Service.IService
+@using Syncfusion.Blazor.RichTextEditor
+@inject IBookRepository _bookRepository
+@inject IJSRuntime _jsRuntime
+@inject IFileUpload _fileUpload
+@inject NavigationManager _navigationManager
+
+<div class="row my-2">
+    <h3 class="card-title mb-3 ml-3">@PageType book</h3>
+    <div class="col-10">
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <h4>Loading...</h4>
+                <img src="/images/loading.gif" />
+            </div>
+        }
+        else
+        {
+            <EditForm Model="Book" OnValidSubmit="AddOrUpdateBook">
+                <DataAnnotationsValidator />
+                <div class="form-group my-3">
+                    <label class="fw-bold">Title</label>
+                    <InputText @bind-Value="Book.Title" class="form-control" />
+                    <ValidationMessage For="() => Book.Title" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Description</label>
+                    @*<InputText @bind-Value="Book.Description" class="form-control" />*@
+                    <SfRichTextEditor @bind-Value="Book.Description" class="form-control"></SfRichTextEditor>>
+                    <ValidationMessage For="() => Book.Description" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Publisher</label>
+                    <InputText @bind-Value="Book.Publisher" class="form-control" />
+                    <ValidationMessage For="() => Book.Publisher" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Pages</label>
+                    <InputNumber @bind-Value="Book.Pages" class="form-control" />
+                    <ValidationMessage For="() => Book.Pages" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Edition</label>
+                    <InputText @bind-Value="Book.Edition" class="form-control" />
+                    <ValidationMessage For="() => Book.Edition" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">ISBN-13</label>
+                    <InputText @bind-Value="Book.Isbn13" class="form-control" />
+                    <ValidationMessage For="() => Book.Isbn13" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">ISBN-10</label>
+                    <InputText @bind-Value="Book.Isbn10" class="form-control" />
+                    <ValidationMessage For="() => Book.Isbn10" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Purchase Link</label>
+                    <InputText @bind-Value="Book.PurchaseUrl" class="form-control" />
+                    <ValidationMessage For="() => Book.PurchaseUrl" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Book Image</label>
+                    <InputFile OnChange="HandleImageUpload"></InputFile>
+                </div>
+                <div class="form-group py-2">
+                    <button class="btn btn-primary">Submit</button>
+                    <NavLink href="books" class="btn btn-secondary">Back to Books</NavLink>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int BookId { get; set; }
+
+    private BookDTO Book { get; set; } = new()
+    {
+        ImageUrl = "/images/default-book.jpg"
+    };
+
+    private string PageType { get; set; } = "Add";
+    public bool IsLoading { get; set; } = true;
+    public string OldImageUrl { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (BookId == 0)
+            {
+                // No BookId passed in URL so create a new book
+                IsLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                // BookId passed in URL so edit book with that Id
+                IsLoading = true;
+                await LoadBook();
+            }
+        }
+    }
+
+    private async Task LoadBook()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        if (BookId != 0)
+        {
+            PageType = "Edit";
+            Book = await _bookRepository.Get(BookId);
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task AddOrUpdateBook()
+    {
+        if (Book.Id == 0)
+        {
+            // Create
+            await _bookRepository.Create(Book);
+            await _jsRuntime.ToastrSuccess("Book added.");
+        }
+        else
+        {
+            // Update
+            if (OldImageUrl != Book.ImageUrl)
+            {
+                _fileUpload.DeleteFile(OldImageUrl);
+            }
+
+            await _bookRepository.Update(Book);
+            await _jsRuntime.ToastrSuccess("Book successfully updated.");
+        }
+        _navigationManager.NavigateTo("books");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs ev)
+    {
+        IsLoading = true;
+        try
+        {
+            if (ev.GetMultipleFiles().Count > 0)
+            {
+                foreach (var file in ev.GetMultipleFiles())
+                {
+                    // System.IO.FileInfo provides properties and methods for creating, copying, deleting, moving, and opening files
+                    System.IO.FileInfo fileInfo = new System.IO.FileInfo(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg" ||
+                        fileInfo.Extension.ToLower() == ".jpeg" ||
+                        fileInfo.Extension.ToLower() == ".png")
+                    {
+                        // Uploads file of type IBrowserFile.. From FileUpload service
+                        Book.ImageUrl = await _fileUpload.UploadFile(file);
+                    }
+                    else
+                    {
+                        await _jsRuntime.ToastrError("Image type must be .jpg, .jpeg, or .png.");
+                        return;
+                    }
+                    IsLoading = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await _jsRuntime.ToastrError(ex.Message);
+        }
+    }
+    
+}

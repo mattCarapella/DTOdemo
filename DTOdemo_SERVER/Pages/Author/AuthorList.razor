@@ -1,0 +1,109 @@
+﻿@page "/authors"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@using DTOdemo_SERVER.Helpers
+@using DTOdemo_SERVER.Service.IService
+@inject IAuthorRepository _authorRepository
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+<div class="row p-5">
+    <div class="row list-header">
+        <div class="col-6">
+            <h1 class="fw-bold">Authors</h1>
+        </div>
+        <div class="col-4 offset-2">
+            <a href="authors/create" class="btn btn-info form-control">Add an Author</a>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Authors.Any())
+        {
+            <table class="table table-bordered my-4">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Books</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var author in Authors)
+                    {
+                        <tr>
+                            <td>
+                                <NavLink href="@($"/authors/{author.Id}")">@(@author.FirstName + " " + @author.LastName)</NavLink>
+                            </td>
+                            <td>
+                                @author.Books.Count
+                            </td>
+                            <td>
+                                <NavLink href="@($"/authors/edit/{author.Id}")" class="btn btn-primary">Edit</NavLink>
+                                <button class="btn btn-danger" @onclick="() => HandleDelete(author.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
+
+@code {
+    private IEnumerable<AuthorDTO> Authors { get; set; } = new List<AuthorDTO>();
+    public bool IsLoading = true;
+    private int DeleteAuthorId { get; set; } = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders. 
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */ 
+        if (firstRender) await LoadAuthors();
+    }
+
+    private async Task LoadAuthors()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Authors = await _authorRepository.GetAll();
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void HandleDelete(int id)
+    {
+        DeleteAuthorId = id;
+        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    private async Task ConfirmDelete(bool isConfirmed)
+    {
+        IsLoading = true;
+        if (isConfirmed && DeleteAuthorId != 0)
+        {
+            AuthorDTO author = await _authorRepository.Get(DeleteAuthorId);
+
+            if (author.ImageUrl != null && !author.ImageUrl.Contains("default-book.jpg"))
+            {
+                _fileUpload.DeleteFile(author.ImageUrl);
+            }
+
+            await _authorRepository.Delete(DeleteAuthorId);
+            await _jsRuntime.ToastrSuccess("Product successfully deleted.");
+            await LoadAuthors();
+            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+        }
+        IsLoading = false;
+    }
+}

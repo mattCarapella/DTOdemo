@@ -1,0 +1,92 @@
+﻿@page "/authors/{authorId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@inject IAuthorRepository _authorRepository
+
+<div class="container p-5">
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Author is not null)
+        {
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-2">
+                        @if (@Author.ImageUrl is null || @Author.ImageUrl == "")
+                            {
+                                <img class="card-img-top img-fluid d-block mx-auto mb-3" src="/images/default-user.jpg" alt="menuitem image" style="height: 120px; width: 120px; border-radius: 50%;" object-fit="contain">
+                            }
+                            else
+                            {
+                                <img class="card-img-top img-fluid d-block mx-auto mb-3" src="@Author.ImageUrl" alt="menuitem image" style="height: 120px; width: 120px; border-radius: 50%;" object-fit="cover">
+
+                            }
+                    </div>
+                    <div class="col-10">
+                        <div class="row">
+                            <div class="author-name">
+                                <h2 class="fw-bold">@(@Author.FullName)</h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <a href="@($"/authors/edit/{Author.Id}")" class="btn btn-warning form-control" style="width: 150px; margin-left: 15px; margin-top: 15px;">Edit author</a>
+                        </div>
+                    </div>
+                   
+                </div>
+                <hr />
+                @if (@Author.Bio is not null && Author.Bio != "")
+                {
+                    <div class="author-bio py-2">
+                        <p>@((MarkupString)@Author.Bio)</p>
+                    </div>
+                    <hr />
+                }
+                @if (@Author.Books.Any())
+                {
+                    <div class="author-books py-3">
+                        <p class="fw-bold">Titles by @Author.FullName:</p>
+                        @foreach (var book in @Author.Books)
+                        {
+                            <div class="author-book-title py-2">
+                                <span>
+                                    <NavLink href="@($"/books/{book.Id}")" class="fw-bold">@book.Title</NavLink>
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+    <NavLink href="authors" class="btn btn-secondary">Back to Authors</NavLink>
+</div>
+
+@code {
+    [Parameter] public int AuthorId { get; set; }
+    private AuthorDTO Author { get; set; } = new AuthorDTO();
+    private bool IsLoading { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadAuthor();
+    }
+
+    private async Task LoadAuthor()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Author = await _authorRepository.Get(AuthorId);
+        IsLoading = false;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/categories"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@inject ICategoryRepository _categoryRepository
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+<div class="row p-5">
+    <div class="row list-header">
+        <div class="col-6">
+            <h1 class="fw-bold">Categories</h1>
+        </div>
+        <div class="col-4 offset-2">
+            <a href="categories/create" class="btn btn-info form-control">Add a category</a>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Categories.Any())
+        {
+            <table class="table table-bordered my-4">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Books</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Categories)
+                    {
+                        <tr>
+                            <td>
+                                <NavLink href="@($"/categories/{category.Id}")">@category.Name</NavLink>
+                            </td>
+                            <td>
+                                @category.Books.Count
+                            </td>
+                            <td>
+                                <NavLink href="@($"/categories/edit/{category.Id}")" class="btn btn-primary">Edit</NavLink>
+                                <button class="btn btn-danger" @onclick="() => HandleDelete(category.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
+
+@code {
+    private IEnumerable<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
+    public bool IsLoading = true;
+    private int DeleteCategoryId { get; set; } = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Categories = await _categoryRepository.GetAll();
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void HandleDelete(int id)
+    {
+        DeleteCategoryId = id;
+        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    /* ConfirmDelete is called by _DeleteConfirmation child component. Passed as EventCallback<bool> ConfirmationChanged */
+    private async Task ConfirmDelete(bool isConfirmed)
+    {
+        IsLoading = true;
+        if (isConfirmed && DeleteCategoryId != 0)
+        {
+            await _categoryRepository.Delete(DeleteCategoryId);
+            await LoadCategories();
+            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+        }
+        IsLoading = false;
+    }
+
+}

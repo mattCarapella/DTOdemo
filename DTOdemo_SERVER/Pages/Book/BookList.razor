@@ -1,0 +1,110 @@
+﻿@page "/books"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@using DTOdemo_SERVER.Helpers
+@using DTOdemo_SERVER.Service.IService
+@inject IBookRepository _bookRepository
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+<div class="row p-5">
+    <div class="row list-header">
+        <div class="col-6">
+            <h1 class="fw-bold">Books</h1>
+        </div>
+        <div class="col-4 offset-2">
+            <a href="books/create" class="btn btn-info form-control">Add a book</a>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Books.Any())
+        {
+            <table class="table table-bordered my-4">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Authors</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in Books)
+                    {
+                        <tr>
+                            <td>
+                                <NavLink href="@($"/books/{book.Id}")">@book.Title</NavLink>
+                            </td>
+                            <td>
+                                @book.Authors.Count
+                            </td>
+                            <td>
+                                <NavLink href="@($"/books/edit/{book.Id}")" class="btn btn-primary">Edit</NavLink>
+                                <button class="btn btn-danger" @onclick="() => HandleDelete(book.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
+
+@code {
+    private IEnumerable<BookDTO> Books { get; set; } = new List<BookDTO>();
+    public bool IsLoading = true;
+    private int DeleteBookId { get; set; } = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadBooks();
+    }
+
+    private async Task LoadBooks()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Books = await _bookRepository.GetAll();
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void HandleDelete(int id)
+    {
+        DeleteBookId = id;
+        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    private async Task ConfirmDelete(bool isConfirmed)
+    {
+        IsLoading = true;
+        if (isConfirmed && DeleteBookId != 0)
+        {
+            BookDTO book = await _bookRepository.Get(DeleteBookId);
+
+            if (book.ImageUrl != null && !book.ImageUrl.Contains("default-book.jpg"))
+            {
+                _fileUpload.DeleteFile(book.ImageUrl);
+            }
+
+            await _bookRepository.Delete(DeleteBookId);
+            await _jsRuntime.ToastrSuccess("Product successfully deleted.");
+            await LoadBooks();
+            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+        }
+        IsLoading = false;
+    }
+
+}

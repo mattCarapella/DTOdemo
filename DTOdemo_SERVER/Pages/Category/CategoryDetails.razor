@@ -1,0 +1,83 @@
+﻿@page "/categories/{categoryId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@inject ICategoryRepository _categoryRepository
+
+<div class="container p-5">
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <h4>Loading...</h4>
+            <img src="/images/loading.gif" />
+        </div>
+    }
+    else
+    {
+        @if (@Category is not null)
+        {
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="category-title py-4">
+                            <h2 class="fw-bold">@Category.Name</h2>
+                        </div>
+                    </div>
+                    <div class="col-2 offset-2">
+                        <a href="@($"/category/edit/{Category.Id}")" class="btn btn-warning form-control">Edit category</a>
+                    </div>
+                </div>
+                <div class="category-books">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Authors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in @Category.Books)
+                            {
+                                <tr>
+                                    <td>
+                                        <NavLink href="@($"/books/{book.Id}")" class="fw-bolder text-primary">@book.Title</NavLink> 
+                                    </td> 
+                                    <td>
+                                        @foreach (var author in @book.Authors)
+                                        {
+                                            <span class="px-2"><a href="@($"/authors/{author.Id}")">@author.Name</a></span>
+                                        }    
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        }
+    }
+    <NavLink href="categories" class="btn btn-secondary">Back to Categories</NavLink>
+</div>
+
+@code {
+    [Parameter] public int CategoryId { get; set; }
+    private CategoryDTO Category { get; set; } = new CategoryDTO();
+    public bool IsLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadCategory();
+    }
+
+    private async Task LoadCategory()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Category = await _categoryRepository.Get(CategoryId);
+        IsLoading = false;
+        StateHasChanged();
+    }
+}

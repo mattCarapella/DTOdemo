@@ -1,0 +1,163 @@
+﻿@page "/authors/create"
+@page "/authors/edit/{authorId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@using DTOdemo_SERVER.Helpers
+@using DTOdemo_SERVER.Service.IService
+@using Syncfusion.Blazor.RichTextEditor
+@inject IAuthorRepository _authorRepository
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+
+<div class="row my-2">
+    <h3 class="card-title text-primary mb-3 ml-3">@PageType author</h3>
+    <div class="col-10">
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <h4>Loading...</h4>
+                <img src="/images/loading.gif" />
+            </div>
+        }
+        else
+        {
+            <EditForm Model="Author" OnValidSubmit="AddAuthor">
+                <DataAnnotationsValidator/>
+                <div class="form-group my-3">
+                    <label class="fw-bold">First Name</label>
+                    <InputText @bind-Value="Author.FirstName" class="form-control" />
+                    <ValidationMessage For="() => Author.FirstName" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Middle Name</label>
+                    <InputText @bind-Value="Author.MiddleName" class="form-control" />
+                    <ValidationMessage For="() => Author.MiddleName" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Last Name</label>
+                    <InputText @bind-Value="Author.LastName" class="form-control" />
+                    <ValidationMessage For="() => Author.LastName" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Biography</label>
+                    @*<InputTextArea @bind-Value="Author.Bio" class="form-control" />*@
+                    <SfRichTextEditor @bind-Value="Author.Bio" class="form-control"></SfRichTextEditor>>
+                    <ValidationMessage For="() => Author.Bio" />
+                </div>
+                <div class="form-group my-3">
+                    <label class="fw-bold">Author Image</label>
+                    <InputFile OnChange="HandleImageUpload"></InputFile>
+                </div>
+                <div class="form-group py-2">
+                    <button class="btn btn-primary">Submit</button>
+                    <NavLink href="authors" class="btn btn-secondary">Back to Authors</NavLink>
+                </div>
+            </EditForm>
+        }
+    </div>
+
+</div>
+
+@code {
+    [Parameter] public int AuthorId { get; set; }
+
+    private AuthorDTO Author { get; set; } = new()
+    {
+        ImageUrl = "/images/default-user.jpg"
+    };
+    
+    private string PageType { get; set; } = "Add";
+    public bool IsLoading { get; set; } = true;
+    public string OldImageUrl { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (AuthorId == 0)
+            {
+                // No AuthorId passed in URL so create a new book
+                IsLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                // AuthorId passed in URL so edit book with that Id
+                IsLoading = true;
+                await LoadAuthor();
+            }
+        }
+    }
+
+    private async Task LoadAuthor()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        if (AuthorId != 0)
+        {
+            PageType = "Edit";
+            Author = await _authorRepository.Get(AuthorId);
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task AddAuthor()
+    {
+        if (Author.Id == 0)
+        {
+            // Create
+            await _authorRepository.Create(Author);
+            await _jsRuntime.ToastrSuccess("Author added.");
+        }
+        else
+        {
+            // Update
+            if (OldImageUrl != Author.ImageUrl)
+            {
+                _fileUpload.DeleteFile(OldImageUrl);
+            }
+
+            await _authorRepository.Update(Author);
+            await _jsRuntime.ToastrSuccess("Author successfully updated.");
+        }
+        _navigationManager.NavigateTo("authors");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs ev)
+    {
+        IsLoading = true;
+        try
+        {
+            if (ev.GetMultipleFiles().Count > 0)
+            {
+                foreach (var file in ev.GetMultipleFiles())
+                {
+                    // System.IO.FileInfo provides properties and methods for creating, copying, deleting, moving, and opening files
+                    System.IO.FileInfo fileInfo = new System.IO.FileInfo(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg" ||
+                        fileInfo.Extension.ToLower() == ".jpeg" ||
+                        fileInfo.Extension.ToLower() == ".png")
+                    {
+                        // Uploads file of type IBrowserFile.. From FileUpload service
+                        Author.ImageUrl = await _fileUpload.UploadFile(file);
+                    }
+                    else
+                    {
+                        await _jsRuntime.ToastrError("Image type must be .jpg, .jpeg, or .png.");
+                        return;
+                    }
+                    IsLoading = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await _jsRuntime.ToastrError(ex.Message);
+        }
+    }
+
+}
