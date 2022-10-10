@@ -1,0 +1,89 @@
+﻿@page "/bootstrap-test"
+@page "/bootstrap-test/{bookId:int}"
+@using DTOdemo_BUSINESS.Repository.IRepository
+@using DTOdemo_MODELS
+@inject IBookRepository _bookRepository
+
+<div>
+    <p>XS (>= 576px): 100% | S (>= 576px): 540px | M (>= 768px): 720px | L (>= 992px): 960px | XL (>= 1200px): 1140px | XXL (>= 1400px): 1320px </p>
+    <p>XS (>= 576px): 100% | S (>= 576px): 540px | M (>= 768px): 720px | L (>= 992px): 960px | XL (>= 1200px): 1140px | XXL (>= 1400px): 1320px </p>
+    <p>XS (>= 576px): 100% | S (>= 576px): 100% | M (>= 768px): 100% | L (>= 992px): 960px | XL (>= 1200px): 1140px | XXL (>= 1400px): 1320px </p>
+    <p>XS (>= 576px): 100% | S (>= 576px): 100% | M (>= 768px): 720px | L (>= 992px): 960px | XL (>= 1200px): 1140px | XXL (>= 1400px): 1320px </p>
+    <p>XS (>= 576px): 100% | S (>= 576px): 100% | M (>= 768px): 100% | L (>= 992px): 100% | XL (>= 1200px): 1140px | XXL (>= 1400px): 1320px </p>
+    <p>XS (>= 576px): 100% | S (>= 576px): 100% | M (>= 768px): 100% | L (>= 992px): 100% | XL (>= 1200px): 100% | XXL (>= 1400px): 1320px </p>
+</div>
+<hr/>
+
+<div class="container my-5">
+    <h2>Normal Container</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+<div class="container-fluid my-5">
+    <h2>Container Fluid</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+<div class="container-lg my-5">
+    <h2>Container L</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+<div class="container-xl my-5">
+    <h2>Container XL</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+    
+</div>
+<hr/>
+
+
+
+<div class="container-sm my-5">
+    <h2>Container S</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+<div class="container-md my-5">
+    <h2>Container M</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+
+
+<div class="container-xxl my-5">
+    <h2>Container XXL</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eleifend donec pretium vulputate sapien nec sagittis aliquam. Mattis rhoncus urna neque viverra justo nec ultrices dui. Porta non pulvinar neque laoreet suspendisse interdum consectetur libero. Purus sit amet luctus venenatis. In cursus turpis massa tincidunt dui ut ornare. Egestas diam in arcu cursus euismod quis. Lacus suspendisse faucibus interdum posuere lorem ipsum. Mauris vitae ultricies leo integer malesuada. Quisque egestas diam in arcu cursus. Tortor dignissim convallis aenean et. Nunc faucibus a pellentesque sit amet porttitor eget dolor morbi. Egestas egestas fringilla phasellus faucibus scelerisque eleifend. Egestas sed sed risus pretium quam vulputate. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Tincidunt tortor aliquam nulla facilisi cras fermentum odio. Auctor urna nunc id cursus metus aliquam eleifend mi. Enim lobortis scelerisque fermentum dui. Porttitor lacus luctus accumsan tortor posuere. Id interdum velit laoreet id donec ultrices.</p>
+</div>
+<hr/>
+
+
+
+
+
+@code {
+    [Parameter] public int BookId { get; set; }
+    private BookDTO Book { get; set; } = new BookDTO();
+    public bool IsLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /* - OnAfterRender() is invoked after each time the component renders.
+           - firstRender is true only upon its initial render and is then set to false.
+           - StateHasChanged() method is used to notify the component when the state has been updated and tell it to re-render. */
+        if (firstRender) await LoadBook();
+    }
+
+    private async Task LoadBook()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Book = await _bookRepository.Get(BookId);
+        IsLoading = false;
+        StateHasChanged();
+    }
+}

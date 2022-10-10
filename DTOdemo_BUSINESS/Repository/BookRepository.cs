@@ -79,7 +79,21 @@ public class BookRepository : IBookRepository
         return 0;
     }
 
-    
+    public async Task<BookDTO> AddAuthorToBook(AddBookAuthorDTO newAuthorDTO)
+    {
+        var book = await _db.Books.Include(b => b.Authors)
+                                  .FirstOrDefaultAsync(b => b.Id == newAuthorDTO.BookId);
+        if (book is null) return new BookDTO();
+        
+        // get author from db
+        var author = await _db.Authors.FirstOrDefaultAsync(a => a.Id == newAuthorDTO.AuthorId);
+        if (author is null) return new BookDTO();
+            
+        // add author to book and save changes
+        book.Authors.Add(author);
+        await _db.SaveChangesAsync();
+        return _mapper.Map<BookDTO>(book); 
+    }
 
 }
 

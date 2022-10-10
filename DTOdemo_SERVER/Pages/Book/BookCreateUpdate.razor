@@ -31,7 +31,6 @@
                 </div>
                 <div class="form-group my-3">
                     <label class="fw-bold">Description</label>
-                    @*<InputText @bind-Value="Book.Description" class="form-control" />*@
                     <SfRichTextEditor @bind-Value="Book.Description" class="form-control"></SfRichTextEditor>>
                     <ValidationMessage For="() => Book.Description" />
                 </div>
@@ -65,15 +64,33 @@
                     <InputText @bind-Value="Book.PurchaseUrl" class="form-control" />
                     <ValidationMessage For="() => Book.PurchaseUrl" />
                 </div>
-                <div class="form-group my-3">
+                <div class="form-group my-4">
                     <label class="fw-bold">Book Image</label>
                     <InputFile OnChange="HandleImageUpload"></InputFile>
                 </div>
+                <hr/>
+                <div class="form-group my-4">
+                    <label class="fw-bold">Authors:</label>
+                    @if (@Book.Authors.Any())
+                    {
+                        <ul>
+                            @foreach (var bookAuthor in @Book.Authors)
+                            {
+                                <li>
+                                    <span>@bookAuthor.Name</span>
+                                    <span class="px-5">x</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <hr/>
                 <div class="form-group py-2">
                     <button class="btn btn-primary">Submit</button>
                     <NavLink href="books" class="btn btn-secondary">Back to Books</NavLink>
                 </div>
             </EditForm>
+            @*<button onclick="@AddAuthor(2)" class="btn btn-primary">Add Author 2</button>*@
         }
     </div>
 </div>
@@ -89,6 +106,8 @@
     private string PageType { get; set; } = "Add";
     public bool IsLoading { get; set; } = true;
     public string OldImageUrl { get; set; } = string.Empty;
+
+    private int AuthorIdToAdd { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -144,6 +163,17 @@
             await _jsRuntime.ToastrSuccess("Book successfully updated.");
         }
         _navigationManager.NavigateTo("books");
+    }
+
+    private async Task AddAuthor(int authorId)
+    {
+        var addBookAuthorDTO = new AddBookAuthorDTO()
+        {
+            BookId = Book.Id,
+            AuthorId = authorId
+        };
+
+        await _bookRepository.AddAuthorToBook(addBookAuthorDTO);
     }
 
     private async Task HandleImageUpload(InputFileChangeEventArgs ev)

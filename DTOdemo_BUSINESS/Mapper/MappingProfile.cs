@@ -23,5 +23,7 @@ public class MappingProfile : Profile
 
         CreateMap<Book, CategoryBookDTO>();
 
+        CreateMap<Book, AddBookAuthorDTO>();
+
     }
 }

@@ -9,4 +9,5 @@ public interface IBookRepository
     public Task<BookDTO> Create(BookDTO objDTO);
     public Task<BookDTO> Update(BookDTO objDTO);
     public Task<int> Delete(int id);
+    public Task<BookDTO> AddAuthorToBook(AddBookAuthorDTO objDTO);
 }
